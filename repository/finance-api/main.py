@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +7,8 @@ from tortoise.contrib.fastapi import RegisterTortoise
 from tortoise.exceptions import BaseORMException
 from src.app.core.config import TORTOISE_ORM
 from src.app.router import router
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -37,6 +40,7 @@ async def orm_exception_handler(_: Request, exc: BaseORMException):
 
 @app.exception_handler(Exception)
 async def generic_exception_handler(_: Request, exc: Exception):
+    logger.exception("Unhandled error: %s", exc)
     return JSONResponse(status_code=500, content={"detail": "Internal server error", "status_code": 500})
 
 
