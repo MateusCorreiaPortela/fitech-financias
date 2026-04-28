@@ -1,0 +1,33 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: finance-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_USER: finance
+      MYSQL_PASSWORD: finance123
+      MYSQL_DATABASE: finance_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysqldata:/var/lib/mysql
+
+  finance-api:
+    container_name: finance-api
+    build:
+      context: ./repository/finance-api
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8050:8050"
+    volumes:
+      - ./repository/finance-api:/app
+    environment:
+      DATABASE_URL: mysql://finance:finance123@mysql:3306/finance_db
+      JWT_SECRET: change-me-in-production
+    depends_on:
+      - mysql
+
+volumes:
+  mysqldata:
